@@ -1,0 +1,25 @@
+{
+  "name": "@gebruederheitz/wp-async-posts-loader",
+  "version": "0.0.1",
+  "description": "A loader to provide frontend functionality to the gebruederheitz/wp-async-posts-provider composer package",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gebruederheitz/wp-async-posts-loader.git"
+  },
+  "keywords": [
+    "wordpress",
+    "asynchronous",
+    "ajax",
+    "rest"
+  ],
+  "author": "Andreas Maros <andreas.maros@gebruederheitz.de>",
+  "license": "GPL-3.0-only",
+  "bugs": {
+    "url": "https://github.com/gebruederheitz/wp-async-posts-loader/issues"
+  },
+  "homepage": "https://github.com/gebruederheitz/wp-async-posts-loader#readme"
+}
