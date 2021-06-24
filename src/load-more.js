@@ -13,7 +13,7 @@ export class LoadMore {
     constructor(userOptions = {}) {
         this.options = this.parseOptions(userOptions);
         this.button = document.querySelector(this.options.buttonSelector);
-        if (!this.button) return;
+        if (!this.button) return false;
 
         this.currentPage = 0;
 
