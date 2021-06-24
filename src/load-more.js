@@ -13,7 +13,7 @@ export class LoadMore {
     constructor(userOptions = {}) {
         this.options = this.parseOptions(userOptions);
         this.button = document.querySelector(this.options.buttonSelector);
-        if (!this.button) return false;
+        if (!this.button) return;
 
         this.currentPage = 0;
 
@@ -47,7 +47,9 @@ export class LoadMore {
      * @return {EventEmitter2 | Listener}
      */
     on(...args) {
-        return this.eventProxy.on(...args);
+        if (this.eventProxy && this.eventProxy.on) {
+            return this.eventProxy.on(...args);
+        }
     }
 
     getDefaultOptions() {
@@ -108,6 +110,8 @@ export class LoadMore {
      * @return {Promise<void>}
      */
     async onClick() {
+        if (!this.button) return;
+
         this.button.classList.add('busy');
         this.eventProxy.emit('load:start');
         if (!(await this.getMorePosts())) {
@@ -160,6 +164,6 @@ export class LoadMore {
      * loaded.
      */
     removeButton() {
-        this.button.remove();
+        this.button && this.button.remove();
     }
 }
