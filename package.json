@@ -1,10 +1,11 @@
 {
     "name": "@gebruederheitz/wp-async-posts-loader",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "description": "A loader to provide frontend functionality to the gebruederheitz/wp-async-posts-provider composer package",
     "main": "index.js",
     "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1"
+        "lint": "eslint ./src",
+        "prettier:check": "prettier -c --config ./.prettierrc ./src/**/*.js"
     },
     "private": false,
     "repository": {
@@ -32,9 +33,5 @@
         "eslint-config-prettier": "^8.3.0",
         "eslint-plugin-prettier": "^3.4.0",
         "prettier": "^2.3.1"
-    },
-    "scripts": {
-        "lint": "eslint ./src",
-        "prettier:check": "prettier -c --config ./.prettierrc ./src/**/*.js"
     }
 }
