@@ -56,6 +56,9 @@ export class LoadMore {
         return {
             buttonSelector: '.ghwp-load-more button',
             containerSelector: '.ghwp-latest-posts',
+            apiNamespace: 'ghwp',
+            apiVersion: '1',
+            apiPath: 'posts/load-more',
         };
     }
 
@@ -66,7 +69,7 @@ export class LoadMore {
      * @return {string}
      */
     getRequestPath(page = 0) {
-        return `/wp-json/ghwapp/v1/posts/load-more?page=${page}`;
+        return `/wp-json/${this.options.apiNamespace}/v${this.options.apiVersion}/${this.options.apiPath}?page=${page}`;
     }
 
     /**
