@@ -1,6 +1,6 @@
 # Wordpress Async Posts Loader
 
-The front-end script to work with the `gebruederheitz/wp-async-post-provider`
+The front-end script to work with the `gebruederheitz/wp-async-post-provider` ( https://github.com/gebruederheitz/ghwapp )
 PHP composer package.
 
 ## Installation
