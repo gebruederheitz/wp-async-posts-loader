@@ -7,6 +7,13 @@ tasks:
     cmds:
       - npm run lint
       - npm run prettier:check
+      - npm run test
+
+  test:watch:
+    desc: Run the test suite in watch mode
+    deps: [ install ]
+    interactive: true
+    cmd: npm run test:watch
 
   release:
     desc: Create & publish a new release version

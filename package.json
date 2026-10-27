@@ -4,9 +4,11 @@
     "description": "A loader to provide frontend functionality to the gebruederheitz/wp-async-posts-provider composer package",
     "main": "index.js",
     "scripts": {
-        "lint": "eslint index.js ./src",
-        "prettier:check": "prettier -c --config ./.prettierrc index.js \"./src/**/*.js\"",
-        "release": "release-it --only-version"
+        "lint": "eslint index.js vitest.config.mjs ./src ./test",
+        "prettier:check": "prettier -c --config ./.prettierrc index.js vitest.config.mjs \"./src/**/*.js\" \"./test/**/*.js\"",
+        "release": "release-it --only-version",
+        "test": "vitest run",
+        "test:watch": "vitest"
     },
     "private": false,
     "repository": {
@@ -35,7 +37,9 @@
         "eslint-config-prettier": "^10.1.8",
         "eslint-plugin-prettier": "^5.5.6",
         "globals": "^17.8.0",
+        "jsdom": "^30.1.3",
         "prettier": "^3.9.6",
-        "release-it": "^21.1.1"
+        "release-it": "^21.1.1",
+        "vitest": "^5.0.5"
     }
 }

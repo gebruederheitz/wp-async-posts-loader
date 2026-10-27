@@ -1,8 +1,11 @@
+CLAUDE.md
 .editorconfig
+eslint.config.mjs
+.idea/
 .prettierrc
 .release-it.yaml
 .task/
-.tool-versions
-CLAUDE.md
-eslint.config.mjs
 Taskfile.yaml
+test/
+.tool-versions
+vitest.config.mjs

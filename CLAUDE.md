@@ -6,19 +6,27 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 `@gebruederheitz/wp-async-posts-loader` is the browser-side companion to the PHP composer package `gebruederheitz/wp-async-posts-provider`. It exports a single class, `LoadMore` (`src/load-more.js`, re-exported from `index.js`), which wires a "load more" button to a WordPress REST endpoint and appends the returned posts to a container.
 
-There is no build step and no test suite: the package is published as untranspiled ES module source, and consumers bundle it themselves. The extensionless relative import in `index.js` relies on the consumer's bundler resolving it.
+There is no build step: the package is published as untranspiled ES module source, and consumers bundle it themselves. The extensionless relative import in `index.js` relies on the consumer's bundler resolving it.
 
 ## Commands
 
 The Node version is pinned in `.tool-versions`. `Taskfile.yaml` ([Task](https://taskfile.dev)) is the entry point; each task installs dependencies first when `package.json` or `package-lock.json` changed.
 
 ```shell
-task test                       # lint + prettier check (alias: task lint)
+task test                       # lint + prettier check + test suite (alias: task lint)
+task test:watch                 # vitest in watch mode
 task release                    # cut a release, see below
-npm run lint                    # eslint (flat config, eslint.config.mjs) over index.js and ./src
-npm run prettier:check          # prettier check over index.js and ./src/**/*.js
-npx eslint --fix index.js ./src # apply prettier formatting via the eslint plugin
+npm run lint                    # eslint (flat config, eslint.config.mjs)
+npm run prettier:check          # prettier check
+npx eslint --fix .              # apply prettier formatting via the eslint plugin
+npx vitest run -t 'removes the button'  # run a single test by name
 ```
+
+Lint and prettier cover `index.js`, `vitest.config.mjs`, `src/` and `test/`.
+
+## Tests
+
+vitest with a jsdom environment (`vitest.config.mjs`); specs live in `test/` rather than next to the sources, because `src/` is published unbuilt. Tests import `describe`/`expect`/`vi` from `vitest` explicitly (no globals). Each test writes the button and container markup into the ambient `document` and stubs the global `fetch` with `vi.stubGlobal`, returning queued `{ posts, more }` bodies. Call `await loader.onClick()` to run a full load cycle without going through a DOM click. Failure paths are not covered yet; they come with the retry behaviour in #3.
 
 ## Releases
 
