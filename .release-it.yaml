@@ -1,5 +1,5 @@
 git:
-  commitMessage: "[chore] Release v${version}"
+  commitMessage: "chore: Release v${version}"
   requireBranch: main
 github:
   release: true
