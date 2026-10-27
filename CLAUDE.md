@@ -13,12 +13,10 @@ There is no build step and no test suite: the package is published as untranspil
 The Node version is pinned in `.tool-versions`.
 
 ```shell
-npm run lint             # eslint (flat config, eslint.config.mjs) over ./src
-npm run prettier:check   # prettier check over ./src/**/*.js
-npx eslint --fix ./src   # apply prettier formatting via the eslint plugin
+npm run lint                    # eslint (flat config, eslint.config.mjs) over index.js and ./src
+npm run prettier:check          # prettier check over index.js and ./src/**/*.js
+npx eslint --fix index.js ./src # apply prettier formatting via the eslint plugin
 ```
-
-Both scripts only cover `./src`; `index.js` is not linted and currently fails the prettier rule (`{LoadMore}` without spaces).
 
 ## Architecture
 

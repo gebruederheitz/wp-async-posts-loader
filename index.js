@@ -1,3 +1,3 @@
-import {LoadMore} from './src/load-more';
+import { LoadMore } from './src/load-more';
 
-export {LoadMore};
+export { LoadMore };
