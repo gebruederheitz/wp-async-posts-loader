@@ -21,6 +21,7 @@ export class LoadMore {
         this.loading = false;
         this.errorElement = null;
         this.originalButtonContent = null;
+        this.simulatedError = false;
 
         this.parser = new DOMParser();
         this.container = document.querySelector(this.options.containerSelector);
@@ -105,13 +106,17 @@ export class LoadMore {
      * @return {Promise<boolean>}  Whether or not there are any posts left to be
      *                             loaded.
      * @throws {Error}  When the request fails or the response isn't a page of
-     *                  rendered posts, or while the button has the
-     *                  data-ghwp-simulate-error attribute (a developer aid to
-     *                  try out the error handling).
+     *                  rendered posts, or on every other call while the
+     *                  button has the data-ghwp-simulate-error attribute (a
+     *                  developer aid to try out the error handling).
      */
     async getMorePosts() {
         const page = this.currentPage + 1;
-        if ('ghwpSimulateError' in this.button.dataset) {
+        // Alternate between failure and success, starting with a failure, so
+        // that both states and the transitions between them can be previewed.
+        this.simulatedError =
+            'ghwpSimulateError' in this.button.dataset && !this.simulatedError;
+        if (this.simulatedError) {
             throw new Error(
                 `Loading page ${page} failed (simulated by data-ghwp-simulate-error).`
             );

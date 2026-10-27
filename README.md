@@ -73,9 +73,12 @@ element inspector:
 </div>
 ```
 
-While the attribute is present (whatever its value), every click fails before a
-request is sent. The attribute is checked on each click, so you can remove it
-again to watch the retry succeed. Don't leave it in your production markup.
+While the attribute is present (whatever its value), clicks alternate between
+failing and loading normally, starting with a failure: the first click shows the
+error, the retry succeeds, the next click fails again, and so on. A simulated
+failure sends no request. The attribute is checked on each click, so you can
+also add or remove it while the page is open. Don't leave it in your production
+markup.
 
 ### API
 
