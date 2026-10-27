@@ -9,6 +9,14 @@ PHP composer package.
 > npm i @gebruederheitz/wp-async-posts-loader
 ```
 
+### Requirements
+
+The package is an untranspiled ES module (ES2017) meant to be imported by your
+bundler. It runs in all current browsers without polyfills; it relies on
+`fetch`, `DOMParser` and `Element.remove()`. If you target older browsers, make
+sure your bundler transpiles it (many configurations exclude `node_modules`
+from transpilation) and polyfill `fetch`.
+
 
 ## Usage
 
@@ -81,7 +89,7 @@ Here are some examples:
 #### Additional parameters
 
 ```js
-import {LoadMore} from './load-more';
+import { LoadMore } from '@gebruederheitz/wp-async-posts-loader';
 
 class MyLoader extends LoadMore {
 

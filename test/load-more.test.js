@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { LoadMore } from '../src/load-more';
+import { LoadMore } from '../src/load-more.js';
 
 /**
  * The loader reads its button and container from the ambient jsdom document
@@ -40,12 +40,6 @@ afterEach(() => {
 });
 
 describe('LoadMore', () => {
-    it('is exported from the package entry point', async () => {
-        const entry = await import('../index');
-
-        expect(entry.LoadMore).toBe(LoadMore);
-    });
-
     it('does nothing when the button is missing', async () => {
         document.body.innerHTML = '';
         const fetchMock = stubServer();

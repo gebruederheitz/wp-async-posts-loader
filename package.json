@@ -2,10 +2,10 @@
     "name": "@gebruederheitz/wp-async-posts-loader",
     "version": "0.1.0",
     "description": "A loader to provide frontend functionality to the gebruederheitz/wp-async-posts-provider composer package",
-    "main": "index.js",
+    "main": "./src/load-more.js",
     "scripts": {
-        "lint": "eslint index.js vitest.config.mjs ./src ./test",
-        "prettier:check": "prettier -c --config ./.prettierrc index.js vitest.config.mjs \"./src/**/*.js\" \"./test/**/*.js\"",
+        "lint": "eslint vitest.config.mjs ./src ./test",
+        "prettier:check": "prettier -c --config ./.prettierrc vitest.config.mjs \"./src/**/*.js\" \"./test/**/*.js\"",
         "release": "release-it --only-version",
         "test": "vitest run",
         "test:watch": "vitest"
@@ -40,5 +40,11 @@
     },
     "dependencies": {
         "mitt": "^3.0.1"
-    }
+    },
+    "type": "module",
+    "exports": {
+        ".": "./src/load-more.js",
+        "./package.json": "./package.json"
+    },
+    "sideEffects": false
 }
