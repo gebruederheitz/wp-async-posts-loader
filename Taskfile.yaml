@@ -1,0 +1,27 @@
+version: 3
+tasks:
+  test:
+    desc: Run linting & testing suite
+    aliases: [lint]
+    deps: [ install ]
+    cmds:
+      - npm run lint
+      - npm run prettier:check
+
+  release:
+    desc: Create & publish a new release version
+    deps: [ install ]
+    cmd: npm run release
+
+  install-dependencies:
+    aliases:
+      - install
+    desc: Install all NPM dependencies
+    sources:
+      - package.json
+      - package-lock.json
+    generates:
+      - package-lock.json
+      - node_modules/**/*
+    run: when_changed
+    cmd: npm i

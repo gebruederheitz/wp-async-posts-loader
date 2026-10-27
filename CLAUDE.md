@@ -10,13 +10,21 @@ There is no build step and no test suite: the package is published as untranspil
 
 ## Commands
 
-The Node version is pinned in `.tool-versions`.
+The Node version is pinned in `.tool-versions`. `Taskfile.yaml` ([Task](https://taskfile.dev)) is the entry point; each task installs dependencies first when `package.json` or `package-lock.json` changed.
 
 ```shell
+task test                       # lint + prettier check (alias: task lint)
+task release                    # cut a release, see below
 npm run lint                    # eslint (flat config, eslint.config.mjs) over index.js and ./src
 npm run prettier:check          # prettier check over index.js and ./src/**/*.js
 npx eslint --fix index.js ./src # apply prettier formatting via the eslint plugin
 ```
+
+## Releases
+
+`task release` runs release-it (`.release-it.yaml`) on `main`, the only long-lived branch. It runs `task test`, bumps the version in `package.json` and `package-lock.json`, commits `[chore] Release vX.Y.Z`, tags, pushes, publishes to npm (requires `npm login`) and opens the GitHub release form in the browser. The release notes are built from the commits since the previous tag. What ends up in the npm package is controlled by `.npmignore`, so add new dev-only config files there.
+
+npm's `latest` dist-tag currently points to `0.2.0-beta.1`, an untracked 2022 build experiment with the same `src/` as `0.1.0`. The next stable release should therefore be at least `0.2.0`, so that `latest` is also the highest published version.
 
 ## Architecture
 
