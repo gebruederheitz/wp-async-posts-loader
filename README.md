@@ -1,6 +1,6 @@
 # Wordpress Async Posts Loader
 
-The front-end script to work with the `gebruederheitz/wp-async-post-provider` ( https://github.com/gebruederheitz/ghwapp )
+The front-end script to work with the `gebruederheitz/wp-async-posts-provider` ( https://github.com/gebruederheitz/ghwapp )
 PHP composer package.
 
 ## Installation
@@ -22,7 +22,7 @@ new LoadMore();
 
 This will attach the listener to a button matching `.ghwp-load-more button` and
 a container `.ghwp-latest-posts`. Clicking the button will make an asynchronous
-REST request to `/wp-json/ghwapp/v1/posts/load-more?page=${page}`, where the PHP
+REST request to `/wp-json/ghwp/v1/posts/load-more?page=${page}`, where the PHP
 Posts Provider resides. The rendered posts thus retrieved will be appended to
 the container.
 The number of posts can be specified through the Provider's configuration

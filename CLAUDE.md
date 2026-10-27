@@ -22,7 +22,7 @@ npx eslint --fix index.js ./src # apply prettier formatting via the eslint plugi
 
 ### Server contract
 
-`getMorePosts()` increments `currentPage` (starting from 1 on the first click) and fetches `getRequestPath(page)`, by default `/wp-json/${apiNamespace}/v${apiVersion}/${apiPath}?page=N` built from `getDefaultOptions()` (`ghwp`, `1`, `posts/load-more`). The response must be JSON `{ posts: string, more: boolean }`, where `posts` is an HTML fragment. Each top-level element of the fragment (parsed with `DOMParser`, taken from `body.children`) becomes one appended post. The README still names the namespace `ghwapp`, but the code default is `ghwp`.
+`getMorePosts()` increments `currentPage` (starting from 1 on the first click) and fetches `getRequestPath(page)`, by default `/wp-json/${apiNamespace}/v${apiVersion}/${apiPath}?page=N` built from `getDefaultOptions()` (`ghwp`, `1`, `posts/load-more`). The response must be JSON `{ posts: string, more: boolean }`, where `posts` is an HTML fragment. Each top-level element of the fragment (parsed with `DOMParser`, taken from `body.children`) becomes one appended post. This matches the `ghwp/v1` namespace the PHP provider registers through `gebruederheitz/wp-simple-rest`.
 
 ### Click flow and events
 
