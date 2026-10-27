@@ -52,7 +52,7 @@ describe('LoadMore', () => {
 
         const loader = new LoadMore();
 
-        expect(loader.on('load:start', () => {})).toBeUndefined();
+        loader.on('load:start', () => {})();
         await loader.onClick();
         loader.removeButton();
         expect(fetchMock).not.toHaveBeenCalled();
@@ -111,6 +111,21 @@ describe('LoadMore', () => {
         expect(document.querySelector('#posts #a')).not.toBeNull();
     });
 
+    it('keeps the default for options set to undefined', async () => {
+        const fetchMock = stubServer({ posts: '', more: true });
+        const loader = new LoadMore({
+            buttonSelector: undefined,
+            apiNamespace: undefined,
+        });
+
+        await loader.onClick();
+
+        expect(loader.button).toBe(button());
+        expect(fetchMock).toHaveBeenCalledWith(
+            '/wp-json/ghwp/v1/posts/load-more?page=1'
+        );
+    });
+
     it('emits its events in order', async () => {
         stubServer({
             posts: '<article id="a"></article><article id="b"></article>',
@@ -139,6 +154,22 @@ describe('LoadMore', () => {
             ['posts:end', undefined],
             ['load:finish', undefined],
         ]);
+    });
+
+    it('stops calling a listener once it is removed', async () => {
+        stubServer(
+            { posts: '<article id="a"></article>', more: true },
+            { posts: '<article id="b"></article>', more: true }
+        );
+        const loader = new LoadMore();
+        const onStart = vi.fn();
+        const removeListener = loader.on('load:start', onStart);
+
+        await loader.onClick();
+        removeListener();
+        await loader.onClick();
+
+        expect(onStart).toHaveBeenCalledTimes(1);
     });
 
     it('marks the button as busy while loading', async () => {

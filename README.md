@@ -52,7 +52,8 @@ loader.removeButton();  // when you've had enough – this will be called
 loader.onClick();       // Allows you to programmatically trigger loading more
                         // elements. Do not use getMorePosts() unless you know
                         // know what you're doing!
-loader.on('event:name', callback) // Attach an event listener
+const off = loader.on('event:name', callback); // Attach an event listener;
+                                                // call off() to remove it
 ```
 
 #### Events

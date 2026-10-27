@@ -27,10 +27,6 @@
         "url": "https://github.com/gebruederheitz/wp-async-posts-loader/issues"
     },
     "homepage": "https://github.com/gebruederheitz/wp-async-posts-loader#readme",
-    "dependencies": {
-        "eventemitter2": "^6.4.4",
-        "lodash-es": "^4.17.21"
-    },
     "devDependencies": {
         "@eslint/js": "^10.0.1",
         "eslint": "^10.8.0",
@@ -41,5 +37,8 @@
         "prettier": "^3.9.6",
         "release-it": "^21.1.1",
         "vitest": "^5.0.5"
+    },
+    "dependencies": {
+        "mitt": "^3.0.1"
     }
 }

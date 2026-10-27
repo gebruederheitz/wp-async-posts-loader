@@ -1,5 +1,4 @@
-import _merge from 'lodash-es/merge';
-import { EventEmitter2 } from 'eventemitter2';
+import mitt from 'mitt';
 
 export class LoadMore {
     /**
@@ -19,7 +18,7 @@ export class LoadMore {
 
         this.parser = new DOMParser();
         this.container = document.querySelector(this.options.containerSelector);
-        this.eventProxy = new EventEmitter2();
+        this.eventProxy = mitt();
 
         this.onClick = this.onClick.bind(this);
 
@@ -43,13 +42,15 @@ export class LoadMore {
     /**
      * Attach an event listener.
      *
-     * @param args
-     * @return {EventEmitter2 | Listener}
+     * @param {string} type
+     * @param {function(*): void} handler  Receives the event's payload.
+     * @return {function(): void}  Removes the listener again.
      */
-    on(...args) {
-        if (this.eventProxy && this.eventProxy.on) {
-            return this.eventProxy.on(...args);
-        }
+    on(type, handler) {
+        if (!this.eventProxy) return () => {};
+
+        this.eventProxy.on(type, handler);
+        return () => this.eventProxy.off(type, handler);
     }
 
     getDefaultOptions() {
@@ -153,13 +154,17 @@ export class LoadMore {
 
     /**
      * Applies user-set options (passed through the constructor) to the default
-     * settings.
+     * settings. Options set to undefined keep their default value.
      *
      * @param {object} userOptions
      * @return {object}
      */
     parseOptions(userOptions) {
-        return _merge(this.getDefaultOptions(), userOptions);
+        const options = this.getDefaultOptions();
+        for (const [key, value] of Object.entries(userOptions)) {
+            if (value !== undefined) options[key] = value;
+        }
+        return options;
     }
 
     /**
