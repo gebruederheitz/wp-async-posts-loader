@@ -32,7 +32,7 @@ vitest with a jsdom environment (`vitest.config.mjs`); specs live in `test/` rat
 
 `task release` runs release-it (`.release-it.yaml`) on `main`, the only long-lived branch. It runs `task test`, bumps the version in `package.json` and `package-lock.json`, commits `chore: Release vX.Y.Z`, tags, pushes, publishes to npm (requires `npm login`) and opens the GitHub release form in the browser. The release notes are built from the commits since the previous tag. What ends up in the npm package is controlled by `.npmignore`, so add new dev-only config files there.
 
-npm's `latest` dist-tag currently points to `0.2.0-beta.1`, an untracked 2022 build experiment with the same `src/` as `0.1.0`. The next stable release should therefore be at least `0.2.0`, so that `latest` is also the highest published version.
+npm's `latest` dist-tag currently points to `0.2.0-beta.1`, an untracked 2022 build experiment with the same `src/` as `0.1.0`. The next release is `1.0.0`, which also makes `latest` the highest published version again.
 
 ## Architecture
 

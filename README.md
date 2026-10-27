@@ -51,8 +51,8 @@ new LoadMore({
 
 ### When loading fails
 
-If a page can't be loaded (network error, HTTP error status, or a response
-without rendered posts), the button stays in place and turns into a retry
+If a page can't be loaded (network error, HTTP error status, invalid JSON, or a
+response without rendered posts), the button stays in place and turns into a retry
 button: its content is replaced by `retryLabel` and it receives a `.retry`
 class. An error message (`errorMessage`) is inserted right before the button as
 `<p class="ghwp-load-more__error" role="alert">`, so screen readers announce it.
