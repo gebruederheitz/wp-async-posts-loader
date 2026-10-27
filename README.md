@@ -38,14 +38,44 @@ server-side.
 
 ### Available options
 
-You may customize the button & container used by providing options to the
-constructor:
+You may customize the button & container used and the texts shown when loading
+fails by providing options to the constructor:
 ```js
 new LoadMore({
     buttonSelector: 'a.load-more-button[href="#"]',
     containerSelector: 'section#posts',
+    errorMessage: 'Weitere Beiträge konnten nicht geladen werden.', // default: 'Loading more posts failed.'
+    retryLabel: '↻ Erneut versuchen',                               // default: '↻ Retry'
 });
 ```
+
+### When loading fails
+
+If a page can't be loaded (network error, HTTP error status, invalid JSON, or a
+response without rendered posts), the button stays in place and turns into a retry
+button: its content is replaced by `retryLabel` and it receives a `.retry`
+class. An error message (`errorMessage`) is inserted right before the button as
+`<p class="ghwp-load-more__error" role="alert">`, so screen readers announce it.
+Clicking the button requests the same page again. Once that succeeds, the
+message is removed and the button gets its original content back.
+
+Clicks on the button while a page is still loading are ignored.
+
+#### Simulating a failure
+
+To see the retry button and error message without breaking your server, add a
+`data-ghwp-simulate-error` attribute to the button, e.g. in your browser's
+element inspector:
+
+```html
+<div class="ghwp-load-more">
+    <button type="button" data-ghwp-simulate-error>Load more</button>
+</div>
+```
+
+While the attribute is present (whatever its value), every click fails before a
+request is sent. The attribute is checked on each click, so you can remove it
+again to watch the retry succeed. Don't leave it in your production markup.
 
 ### API
 
@@ -72,19 +102,42 @@ const off = loader.on('event:name', callback); // Attach an event listener;
 | posts:end    | n/a                   | All posts have been retrieved, the button will now be removed.          |
 | posts:parsed | `{posts: Element[]}`  | The posts have been retrieved and parsed into an array of DOM elements. |
 | load:start   | n/a                   | Loading has been requested.                                             |
-| load:finish  | n/a                   | All processing has finished.                                            |
+| load:error   | `{error: Error}`      | Loading a page failed; the button now offers a retry.                   |
+| load:finish  | n/a                   | All processing has finished, whether loading succeeded or failed.       |
 
 
 #### Additional classnames
 
 During the loading process, the button element will receive a `.busy` class,
-which you can use to give visual feedback to the user.
+which you can use to give visual feedback to the user. After a failed load, it
+has the `.retry` class until the next successful load; the error message has
+the class `.ghwp-load-more__error`.
 
 
 ### Extending functionality
 
 You can easily extend the module's functionality by building on top of the class.
 Here are some examples:
+
+#### Presenting errors differently
+
+Override `showError(error)` and `clearError()` to replace the default error
+message and retry button, for example with a toast notification. `showError()`
+is called with the error after every failed load, `clearError()` after every
+successful one.
+
+```js
+class MyLoader extends LoadMore {
+    showError(error) {
+        console.warn(error);
+        myToasts.show(this.options.errorMessage);
+    }
+
+    clearError() {
+        myToasts.hide();
+    }
+}
+```
 
 #### Additional parameters
 
@@ -165,6 +218,22 @@ This means:
   listener.
 - If the button can't be found, `on()` returns a function that does nothing,
   rather than `undefined`.
+
+#### Failed loads no longer remove the button
+
+In 0.x, a failed request was only logged to the console and treated like the
+last page: the button was removed and `posts:end` was emitted. Now the button
+turns into a retry button, `load:error` is emitted instead of `posts:end`, and
+the failed page is requested again on the next click (see
+[When loading fails](#when-loading-fails)). If you listened to `posts:end` to
+handle errors, listen to `load:error` instead.
+
+Clicks while a page is loading are now ignored; in 0.x, each click started a
+request for the next page right away.
+
+`getMorePosts()` now rejects when loading fails instead of resolving with
+`undefined`. The `.busy` class is now removed by `onClick()`, after the posts
+have been appended, rather than by `parseAndAppendPosts()`.
 
 #### Import from the package name only
 

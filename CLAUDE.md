@@ -26,13 +26,13 @@ Lint and prettier cover `vitest.config.mjs`, `src/` and `test/`.
 
 ## Tests
 
-vitest with a jsdom environment (`vitest.config.mjs`); specs live in `test/` rather than next to the sources, because `src/` is published unbuilt. Tests import `describe`/`expect`/`vi` from `vitest` explicitly (no globals). Each test writes the button and container markup into the ambient `document` and stubs the global `fetch` with `vi.stubGlobal`, returning queued `{ posts, more }` bodies. Call `await loader.onClick()` to run a full load cycle without going through a DOM click. Failure paths are not covered yet; they come with the retry behaviour in #3.
+vitest with a jsdom environment (`vitest.config.mjs`); specs live in `test/` rather than next to the sources, because `src/` is published unbuilt. Tests import `describe`/`expect`/`vi` from `vitest` explicitly (no globals). Each test writes the button and container markup into the ambient `document` and stubs the global `fetch` with `vi.stubGlobal` (`stubServer()`), returning queued `{ posts, more }` bodies as real `Response` objects, or one of the `failures` for the error paths. Call `await loader.onClick()` to run a full load cycle without going through a DOM click.
 
 ## Releases
 
 `task release` runs release-it (`.release-it.yaml`) on `main`, the only long-lived branch. It runs `task test`, bumps the version in `package.json` and `package-lock.json`, commits `chore: Release vX.Y.Z`, tags, pushes, publishes to npm (requires `npm login`) and opens the GitHub release form in the browser. The release notes are built from the commits since the previous tag. What ends up in the npm package is controlled by `.npmignore`, so add new dev-only config files there.
 
-npm's `latest` dist-tag currently points to `0.2.0-beta.1`, an untracked 2022 build experiment with the same `src/` as `0.1.0`. The next stable release should therefore be at least `0.2.0`, so that `latest` is also the highest published version.
+npm's `latest` dist-tag currently points to `0.2.0-beta.1`, an untracked 2022 build experiment with the same `src/` as `0.1.0`. The next release is `1.0.0`, which also makes `latest` the highest published version again.
 
 ## Architecture
 
@@ -42,9 +42,9 @@ npm's `latest` dist-tag currently points to `0.2.0-beta.1`, an untracked 2022 bu
 
 ### Click flow and events
 
-`onClick` adds the `.busy` class to the button, emits `load:start`, awaits `getMorePosts()`, removes the button and emits `posts:end` when `more` is falsy, then emits `load:finish`. `parseAndAppendPosts` emits `posts:parsed`, `appendPosts` emits `post:append` per element, and it is `parseAndAppendPosts` (not `onClick`) that removes `.busy`. Events go through an internal [mitt](https://github.com/developit/mitt) emitter; `on()` returns a function that removes the listener (a no-op when the button is missing). The event names and payloads are documented in the README's events table and form the public API.
+`onClick` ignores clicks while `loading` is set. Otherwise it adds the `.busy` class to the button, emits `load:start` and awaits `getMorePosts()`. On success it calls `clearError()`, and removes the button and emits `posts:end` when `more` is falsy. On failure it calls `showError(error)` and emits `load:error`. Either way it removes `.busy` and emits `load:finish`. `parseAndAppendPosts` emits `posts:parsed` and `appendPosts` emits `post:append` per element. Events go through an internal [mitt](https://github.com/developit/mitt) emitter; `on()` returns a function that removes the listener (a no-op when the button is missing). The event names and payloads are documented in the README's events table and form the public API.
 
-Failure behaviour: a fetch or JSON error is swallowed by `.catch(console.warn)`, so `getMorePosts()` resolves to `undefined` and the button is removed as if there were no more posts.
+Failure behaviour: `getMorePosts()` rejects on network errors, non-OK HTTP statuses, invalid JSON and bodies without a `posts` string. It advances `currentPage` only after the response has been validated (and before appending, so an exception in a consumer's `post:append` listener can't cause the page to be appended twice), so a retry requests the same page. The default `showError()` logs the error, inserts a `p.ghwp-load-more__error[role=alert]` before the button (replaced, not updated, on every failure so screen readers announce it again), saves the button's `innerHTML` once and replaces it with `retryLabel`, and adds `.retry`. `clearError()` undoes all of that. Both are overridable hooks documented in the README. As a developer aid, `getMorePosts()` also fails without a request while the button has a `data-ghwp-simulate-error` attribute; it is read on every call so it can be toggled in the browser's inspector.
 
 ### Missing button
 
@@ -52,4 +52,4 @@ If `buttonSelector` matches nothing, the constructor returns early without creat
 
 ### Extension by subclassing
 
-Consumers customise behaviour by extending `LoadMore` and overriding methods (see the README's "Extending functionality" section). The methods the README tells them to override — `initFilters()` (an empty hook called from the constructor before `listen()`) and `getRequestPath()` — plus the documented `onClick()`, `removeButton()` and `on()` are effectively public API; changing their names, signatures or call order is a breaking change. `parseOptions()` shallow-merges user options over `getDefaultOptions()` and skips options set to `undefined`, so they keep their default.
+Consumers customise behaviour by extending `LoadMore` and overriding methods (see the README's "Extending functionality" section). The methods the README tells them to override — `initFilters()` (an empty hook called from the constructor before `listen()`) and `getRequestPath()` — plus `showError()`, `clearError()` and the documented `onClick()`, `removeButton()` and `on()` are effectively public API; changing their names, signatures or call order is a breaking change. `parseOptions()` shallow-merges user options over `getDefaultOptions()` and skips options set to `undefined`, so they keep their default.
