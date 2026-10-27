@@ -111,7 +111,7 @@ export class LoadMore {
      */
     async getMorePosts() {
         const page = this.currentPage + 1;
-        if (this.button.hasAttribute('data-ghwp-simulate-error')) {
+        if ('ghwpSimulateError' in this.button.dataset) {
             throw new Error(
                 `Loading page ${page} failed (simulated by data-ghwp-simulate-error).`
             );
