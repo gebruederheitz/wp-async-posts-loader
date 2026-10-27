@@ -132,3 +132,48 @@ class MyLoader extends LoadMore {
     }
 }
 ```
+
+
+## Upgrading
+
+### From 0.x to 1.0
+
+#### `on()` returns a function that removes the listener
+
+Events are now handled by [mitt](https://github.com/developit/mitt) instead of
+EventEmitter2. Listeners still receive the same payloads, but `on()` no longer
+returns the event emitter. It returns a function that removes the listener
+again:
+
+```js
+// 0.x
+loader.on('load:start', onStart).on('load:finish', onFinish);
+
+// 1.0
+const offStart = loader.on('load:start', onStart);
+const offFinish = loader.on('load:finish', onFinish);
+// later:
+offStart();
+```
+
+This means:
+
+- Calls to `on()` can no longer be chained.
+- The other EventEmitter2 methods (`off()`, `once()`, `onAny()`,
+  `removeAllListeners()` etc.) and `on()`'s third `options` argument are no
+  longer available. To listen only once, call the returned function inside the
+  listener.
+- If the button can't be found, `on()` returns a function that does nothing,
+  rather than `undefined`.
+
+#### Import from the package name only
+
+The package now declares its entry point in `exports`, so deep imports such as
+`@gebruederheitz/wp-async-posts-loader/src/load-more` fail. Import `LoadMore`
+from `@gebruederheitz/wp-async-posts-loader` instead.
+
+#### Options are merged shallowly
+
+User options used to be deep-merged with the defaults. They now replace them key
+by key. This only makes a difference if a subclass's `getDefaultOptions()`
+returns nested objects. Options set to `undefined` still keep their default.
