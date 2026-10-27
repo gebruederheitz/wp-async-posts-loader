@@ -11,7 +11,7 @@ PHP composer package.
 
 ### Requirements
 
-The package is an untranspiled ES module (ES2017) meant to be imported by your
+The package is an untranspiled ES module (ES2020) meant to be imported by your
 bundler. It runs in all current browsers without polyfills; it relies on
 `fetch`, `DOMParser` and `Element.remove()`. If you target older browsers, make
 sure your bundler transpiles it (many configurations exclude `node_modules`
@@ -234,6 +234,12 @@ request for the next page right away.
 `getMorePosts()` now rejects when loading fails instead of resolving with
 `undefined`. The `.busy` class is now removed by `onClick()`, after the posts
 have been appended, rather than by `parseAndAppendPosts()`.
+
+#### ES2020 syntax
+
+The code now uses optional chaining (`?.`), so it requires ES2020 instead of
+ES2017. All current browsers support it; if you target older ones, have your
+bundler transpile the package (see [Requirements](#requirements)).
 
 #### Import from the package name only
 

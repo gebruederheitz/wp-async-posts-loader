@@ -139,7 +139,9 @@ export class LoadMore {
      * introduce / pre-configure / initialise your filters in this method and
      * the use them by extending getRequestPath().
      */
-    initFilters() {}
+    initFilters() {
+        // Intentionally empty: a hook for subclasses.
+    }
 
     /**
      * Set up the required event listeners.
@@ -227,7 +229,7 @@ export class LoadMore {
      * loaded.
      */
     removeButton() {
-        this.button && this.button.remove();
+        this.button?.remove();
     }
 
     /**
