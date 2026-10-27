@@ -61,6 +61,22 @@ message is removed and the button gets its original content back.
 
 Clicks on the button while a page is still loading are ignored.
 
+#### Simulating a failure
+
+To see the retry button and error message without breaking your server, add a
+`data-ghwp-simulate-error` attribute to the button, e.g. in your browser's
+element inspector:
+
+```html
+<div class="ghwp-load-more">
+    <button type="button" data-ghwp-simulate-error>Load more</button>
+</div>
+```
+
+While the attribute is present (whatever its value), every click fails before a
+request is sent. The attribute is checked on each click, so you can remove it
+again to watch the retry succeed. Don't leave it in your production markup.
+
 ### API
 
 Some methods you may find useful:

@@ -105,10 +105,18 @@ export class LoadMore {
      * @return {Promise<boolean>}  Whether or not there are any posts left to be
      *                             loaded.
      * @throws {Error}  When the request fails or the response isn't a page of
-     *                  rendered posts.
+     *                  rendered posts, or while the button has the
+     *                  data-ghwp-simulate-error attribute (a developer aid to
+     *                  try out the error handling).
      */
     async getMorePosts() {
         const page = this.currentPage + 1;
+        if (this.button.hasAttribute('data-ghwp-simulate-error')) {
+            throw new Error(
+                `Loading page ${page} failed (simulated by data-ghwp-simulate-error).`
+            );
+        }
+
         const res = await fetch(this.getRequestPath(page));
         if (!res.ok) {
             throw new Error(

@@ -388,6 +388,34 @@ describe('LoadMore when loading fails', () => {
         expect(errorMessage()).toBeNull();
     });
 
+    it('simulates a failure while the button has data-ghwp-simulate-error', async () => {
+        button().setAttribute('data-ghwp-simulate-error', '');
+        const fetchMock = stubServer({
+            posts: '<article id="a"></article>',
+            more: true,
+        });
+        const loader = new LoadMore();
+        const onError = vi.fn();
+        loader.on('load:error', onError);
+
+        await loader.onClick();
+
+        expect(fetchMock).not.toHaveBeenCalled();
+        expect(button().textContent).toBe('↻ Retry');
+        expect(onError.mock.calls[0][0].error.message).toBe(
+            'Loading page 1 failed (simulated by data-ghwp-simulate-error).'
+        );
+
+        button().removeAttribute('data-ghwp-simulate-error');
+        await loader.onClick();
+
+        expect(fetchMock).toHaveBeenCalledWith(
+            '/wp-json/ghwp/v1/posts/load-more?page=1'
+        );
+        expect(button().textContent).toBe('Load more');
+        expect(postIds()).toEqual(['initial', 'a']);
+    });
+
     it('uses the configured texts', async () => {
         stubServer(failures['the network request fails']);
         const loader = new LoadMore({
