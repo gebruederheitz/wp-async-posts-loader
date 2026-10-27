@@ -8,6 +8,9 @@ export class LoadMore {
      * @param {?string} userOptions.containerSelector  The container that the
      *                                                 retrieved posts will be
      *                                                 appended to.
+     * @param {?string} userOptions.errorMessage       Shown when loading fails.
+     * @param {?string} userOptions.retryLabel         Replaces the button's
+     *                                                 content after a failure.
      */
     constructor(userOptions = {}) {
         this.options = this.parseOptions(userOptions);
@@ -15,6 +18,9 @@ export class LoadMore {
         if (!this.button) return;
 
         this.currentPage = 0;
+        this.loading = false;
+        this.errorElement = null;
+        this.originalButtonContent = null;
 
         this.parser = new DOMParser();
         this.container = document.querySelector(this.options.containerSelector);
@@ -40,6 +46,22 @@ export class LoadMore {
     }
 
     /**
+     * Removes the error message and restores the button's original content
+     * after a failed load has been retried successfully.
+     */
+    clearError() {
+        if (this.errorElement) {
+            this.errorElement.remove();
+            this.errorElement = null;
+        }
+        if (this.originalButtonContent !== null) {
+            this.button.innerHTML = this.originalButtonContent;
+            this.originalButtonContent = null;
+        }
+        this.button.classList.remove('retry');
+    }
+
+    /**
      * Attach an event listener.
      *
      * @param {string} type
@@ -60,6 +82,8 @@ export class LoadMore {
             apiNamespace: 'ghwp',
             apiVersion: '1',
             apiPath: 'posts/load-more',
+            errorMessage: 'Loading more posts failed.',
+            retryLabel: '↻ Retry',
         };
     }
 
@@ -74,23 +98,32 @@ export class LoadMore {
     }
 
     /**
-     * Retrieve the next page of posts from the server.
+     * Retrieve the next page of posts from the server. The page only counts as
+     * loaded once the server has returned it, so a page that failed is
+     * requested again on the next call.
      *
      * @return {Promise<boolean>}  Whether or not there are any posts left to be
      *                             loaded.
+     * @throws {Error}  When the request fails or the response isn't a page of
+     *                  rendered posts.
      */
-    getMorePosts() {
-        ++this.currentPage;
+    async getMorePosts() {
+        const page = this.currentPage + 1;
+        const res = await fetch(this.getRequestPath(page));
+        if (!res.ok) {
+            throw new Error(
+                `Loading page ${page} failed with HTTP ${res.status}.`
+            );
+        }
 
-        const path = this.getRequestPath(this.currentPage);
+        const body = await res.json();
+        if (!body || typeof body.posts !== 'string') {
+            throw new Error(`The response for page ${page} contains no posts.`);
+        }
 
-        return fetch(path)
-            .then((res) => res.json())
-            .then(({ posts, more }) => {
-                this.parseAndAppendPosts(posts);
-                return more;
-            })
-            .catch(console.warn);
+        this.currentPage = page;
+        this.parseAndAppendPosts(body.posts);
+        return body.more;
     }
 
     /**
@@ -108,19 +141,34 @@ export class LoadMore {
     }
 
     /**
-     * Click event handler for the load more button.
+     * Click event handler for the load more button. Clicks while a page is
+     * still loading are ignored.
      *
+     * @emits load:start
      * @emits posts:end
+     * @emits load:error
+     * @emits load:finish
      * @return {Promise<void>}
      */
     async onClick() {
-        if (!this.button) return;
+        if (!this.button || this.loading) return;
 
+        this.loading = true;
         this.button.classList.add('busy');
         this.eventProxy.emit('load:start');
-        if (!(await this.getMorePosts())) {
-            this.removeButton();
-            this.eventProxy.emit('posts:end');
+        try {
+            const more = await this.getMorePosts();
+            this.clearError();
+            if (!more) {
+                this.removeButton();
+                this.eventProxy.emit('posts:end');
+            }
+        } catch (error) {
+            this.showError(error);
+            this.eventProxy.emit('load:error', { error });
+        } finally {
+            this.loading = false;
+            this.button.classList.remove('busy');
         }
         this.eventProxy.emit('load:finish');
     }
@@ -138,7 +186,6 @@ export class LoadMore {
         const posts = Array.from(postsCollection);
         this.eventProxy.emit('posts:parsed', { posts });
         this.appendPosts(posts);
-        this.button.classList.remove('busy');
         this.button.blur();
     }
 
@@ -173,5 +220,31 @@ export class LoadMore {
      */
     removeButton() {
         this.button && this.button.remove();
+    }
+
+    /**
+     * Logs the error, tells the user that loading failed and turns the button
+     * into a retry button until the next successful load. Override this and
+     * clearError() to present errors differently.
+     *
+     * @param {Error} error
+     */
+    showError(error) {
+        console.warn(error);
+
+        // Replace rather than update the message, so that screen readers
+        // announce it again on every failure.
+        if (this.errorElement) this.errorElement.remove();
+        this.errorElement = document.createElement('p');
+        this.errorElement.className = 'ghwp-load-more__error';
+        this.errorElement.setAttribute('role', 'alert');
+        this.errorElement.textContent = this.options.errorMessage;
+        this.button.parentNode.insertBefore(this.errorElement, this.button);
+
+        if (this.originalButtonContent === null) {
+            this.originalButtonContent = this.button.innerHTML;
+        }
+        this.button.textContent = this.options.retryLabel;
+        this.button.classList.add('retry');
     }
 }
